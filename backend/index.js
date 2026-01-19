@@ -13,6 +13,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const port = process.env.Port ||3000;
 
 dotenv.config();
 connectDB(); // 🔥 sirf ek baar
