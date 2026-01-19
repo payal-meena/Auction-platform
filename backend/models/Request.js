@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const  mongoose =require("mongoose");
 
 const requestSchema = new mongoose.Schema(
   {
@@ -62,4 +62,4 @@ const requestSchema = new mongoose.Schema(
 );
 
 const Request = mongoose.model("Request", requestSchema);
-export default Request;
+module.exports= Request;

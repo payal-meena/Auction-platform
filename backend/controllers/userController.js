@@ -1,9 +1,6 @@
 const User = require("../models/User.js");
 const jwt = require("jsonwebtoken");
 
- 
-
-
 /* GET MY PROFILE */
 const getMyProfile = async (req, res) => {
   try {

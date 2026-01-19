@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const addSkill = async (req, res) => {
   try {
-    const { name, type } = req.body; // offered | learn
+    const { name, type } = req.body; 
 
     if (!["offered", "learn"].includes(type)) {
       return res.status(400).json({ message: "Invalid skill type" });
@@ -18,7 +18,7 @@ const addSkill = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // prevent duplicate skill
+    
     if (user[field].some((s) => s.name === name)) {
       return res.status(400).json({ message: "Skill already exists" });
     }
