@@ -12,15 +12,19 @@
 
 // const User = mongoose.model("User", userSchema);
 // export default User;
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const skillSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true }, // e.g. React, Guitar
+    name: {
+      type: String,
+      required: true, // e.g. React, Guitar
+    },
+    // level future me add kar sakti ho
     // level: {
     //   type: String,
     //   enum: ["Beginner", "Intermediate", "Advanced"],
-    //   required: true,
     // },
   },
   { _id: false }
@@ -91,4 +95,5 @@ const userSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model("User", userSchema);
-export default User;
+
+module.exports = User;
