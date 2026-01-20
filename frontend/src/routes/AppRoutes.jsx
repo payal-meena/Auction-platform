@@ -5,11 +5,14 @@ import MySkills from "../pages/skills/MySkills";
 import UserLayout from "../layouts/UserLayout";
 import Requests from "../pages/requests/Requests";
 import MessagesPage from "../pages/messages/MessagesPage";
+import Auth from "../pages/public/Auth";
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      
+      <Route path="/auth" element={<Auth />} />
 
       <Route element={<UserLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
