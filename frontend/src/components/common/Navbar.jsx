@@ -22,7 +22,8 @@ const Navbar = () => {
       </nav>
       <button 
         className="flex min-w-[100px] items-center justify-center rounded-xl h-10 px-6 bg-primary text-background-dark text-sm font-bold tracking-[0.015em] hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20"
-        onClick={() => alert('Sign up modal or page goes here!')}
+        onClick={() => {
+          window.location.href = '/auth';}}
       >
         Join Now
       </button>
