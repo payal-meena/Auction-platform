@@ -1,65 +1,64 @@
-const Skill = require("../models/Skill");
+const User = require("../models/User.js");
+const jwt = require("jsonwebtoken");
 
 
-exports.addSkill = async (req, res) => {
+const addSkill = async (req, res) => {
   try {
-    const { skillName, level, type } = req.body;
+    const { name, type } = req.body; 
 
-    if (!skillName || !level || !type) {
-      return res.status(400).json({ message: "All fields required" });
+    if (!["offered", "learn"].includes(type)) {
+      return res.status(400).json({ message: "Invalid skill type" });
     }
 
-    const skill = await Skill.create({
-      skillName,
-      level,
-      type,
-      userId: req.user._id,
-    });
+    const field = type === "offered" ? "skillsOffered" : "skillsToLearn";
 
-    res.status(201).json(skill);
+    const user = await User.findById(req.user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    
+    if (user[field].some((s) => s.name === name)) {
+      return res.status(400).json({ message: "Skill already exists" });
+    }
+
+    user[field].push({ name });
+    await user.save();
+
+    res.json(user[field]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
-exports.getMySkills = async (req, res) => {
+/* REMOVE SKILL */
+const removeSkill = async (req, res) => {
   try {
-    const skills = await Skill.find({ userId: req.user._id });
-    res.json(skills);
+    const { skillName, type } = req.params;
+
+    if (!["offered", "learn"].includes(type)) {
+      return res.status(400).json({ message: "Invalid skill type" });
+    }
+
+    const field = type === "offered" ? "skillsOffered" : "skillsToLearn";
+
+    const user = await User.findById(req.user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user[field] = user[field].filter((s) => s.name !== skillName);
+    await user.save();
+
+    res.json(user[field]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
-exports.getUserSkills = async (req, res) => {
-  try {
-    const skills = await Skill.find({ userId: req.params.userId })
-      .populate("userId", "name email");
-
-    res.json(skills);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-
-exports.deleteSkill = async (req, res) => {
-  try {
-    const skill = await Skill.findById(req.params.id);
-
-    if (!skill) {
-      return res.status(404).json({ message: "Skill not found" });
-    }
-
-    if (skill.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
-    await skill.deleteOne();
-    res.json({ message: "Skill deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+module.exports = {
+  addSkill,
+  removeSkill,
 };

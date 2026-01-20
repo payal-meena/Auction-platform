@@ -1,0 +1,38 @@
+import React from 'react'
+
+const Navbar = () => {
+  return (
+    <div>
+    <header className="sticky top-5 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-white/10 px-4 md:px-10 py-3 bg-white/5 backdrop-blur-md rounded-xl">
+    <div className="flex items-center gap-4 text-slate-900 dark:text-white">
+      <a href="#hero" className="flex items-center gap-4">
+        <div className="size-8 text-primary">
+          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor"></path>
+          </svg>
+        </div>
+        <h2 className="text-lg font-bold">SwapSkill</h2>
+      </a>
+    </div>
+    <div className="hidden md:flex flex-1 justify-end gap-8">
+      <nav className="flex items-center gap-9">
+        <a className="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#browse-skills">Browse Skills</a>
+        <a className="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#how-it-works">How it Works</a>
+        <a className="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#about">About</a>
+      </nav>
+      <button 
+        className="flex min-w-[100px] items-center justify-center rounded-xl h-10 px-6 bg-primary text-background-dark text-sm font-bold tracking-[0.015em] hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20"
+        onClick={() => alert('Sign up modal or page goes here!')}
+      >
+        Join Now
+      </button>
+    </div>
+    <button className="md:hidden text-slate-900 dark:text-white">
+      <span className="material-symbols-outlined">menu</span>
+    </button>
+  </header>
+    </div>
+  )
+}
+
+export default Navbar

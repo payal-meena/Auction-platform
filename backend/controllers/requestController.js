@@ -1,9 +1,12 @@
-import Request from "../models/Request.js";
+const Request = require("../models/Request");
 
-export const sendRequest = async (req, res) => {
+
+const sendRequest = async (req, res) => {
+  console.log("REQ.USER =", req.user);
+
   try {
     const { receiver, offeredSkill, requestedSkill } = req.body;
-    const requester = req.user.id; 
+    const requester = req.user; 
 
    
     if (requester === receiver) {
@@ -50,9 +53,9 @@ export const sendRequest = async (req, res) => {
 };
 
 
-export const getMyRequests = async (req, res) => {
+ const getMyRequests = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user;
 
     const requests = await Request.find({
       $or: [{ requester: userId }, { receiver: userId }],
@@ -75,7 +78,7 @@ export const getMyRequests = async (req, res) => {
 };
 
 
-export const acceptRequest = async (req, res) => {
+ const acceptRequest = async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
 
@@ -87,7 +90,7 @@ export const acceptRequest = async (req, res) => {
     }
 
   
-    if (request.receiver.toString() !== req.user.id) {
+    if (request.receiver.toString() !== req.user) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to accept this request",
@@ -113,7 +116,7 @@ export const acceptRequest = async (req, res) => {
 };
 
 
-export const rejectRequest = async (req, res) => {
+ const rejectRequest = async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
 
@@ -124,7 +127,7 @@ export const rejectRequest = async (req, res) => {
       });
     }
 
-    if (request.receiver.toString() !== req.user.id) {
+    if (request.receiver.toString() !== req.user) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to reject this request",
@@ -147,7 +150,7 @@ export const rejectRequest = async (req, res) => {
 };
 
 
-export const completeRequest = async (req, res) => {
+ const completeRequest = async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
 
@@ -158,7 +161,7 @@ export const completeRequest = async (req, res) => {
       });
     }
 
-    const userId = req.user.id;
+    const userId = req.user;
 
     if (request.requester.toString() === userId) {
       request.requesterCompleted = true;
@@ -186,4 +189,13 @@ export const completeRequest = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+
+module.exports = {
+  sendRequest,
+  getMyRequests,
+  acceptRequest,
+  rejectRequest,
+  completeRequest,
 };
