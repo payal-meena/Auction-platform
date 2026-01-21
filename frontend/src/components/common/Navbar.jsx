@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Navbar = () => {
   return (
@@ -20,12 +21,12 @@ const Navbar = () => {
         <a className="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#how-it-works">How it Works</a>
         <a className="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#about">About</a>
       </nav>
-      <button 
+      <Link 
         className="flex min-w-[100px] items-center justify-center rounded-xl h-10 px-6 bg-primary text-background-dark text-sm font-bold tracking-[0.015em] hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20"
-        onClick={() => alert('Sign up modal or page goes here!')}
+        to="/auth"
       >
         Join Now
-      </button>
+      </Link>
     </div>
     <button className="md:hidden text-slate-900 dark:text-white">
       <span className="material-symbols-outlined">menu</span>
