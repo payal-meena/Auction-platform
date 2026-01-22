@@ -1,14 +1,17 @@
 import React from 'react';
 
-const MySkillCard = ({ title, level, icon, detail, status, isOffer = true }) => {
+const MySkillCard = ({ title, level, icon, detail, status, isOffer = true, onEdit }) => {
   return (
-    <div className={`bg-white dark:bg-[#193322] border ${isOffer ? 'border-slate-200 dark:border-[#23482f]' : 'border-dashed border-slate-200 dark:border-[#23482f]'} rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group`}>
+    <div className={`bg-white dark:bg-[#193322] border ${isOffer ? 'border-slate-200 dark:border-[#23482f]' : 'border-dashed border-slate-200 dark:border-[#23482f]'} rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group font-['Lexend']`}>
       <div className="flex justify-between items-start mb-4">
         <div className={`${isOffer ? 'bg-slate-100 dark:bg-[#112217]' : 'bg-primary/5 dark:bg-[#112217]'} p-3 rounded-xl`}>
           <span className="material-symbols-outlined text-primary text-3xl">{icon}</span>
         </div>
         <div className="flex gap-1">
-          <button className="p-2 text-slate-400 hover:text-primary transition-colors cursor-pointer">
+          <button 
+            onClick={onEdit}
+            className="p-2 text-slate-400 hover:text-primary transition-colors cursor-pointer"
+          >
             <span className="material-symbols-outlined text-xl">edit</span>
           </button>
           <button className="p-2 text-slate-400 hover:text-red-500 transition-colors cursor-pointer">
