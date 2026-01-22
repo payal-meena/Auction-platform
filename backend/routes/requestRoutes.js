@@ -1,5 +1,7 @@
 const express = require("express");
 const  protect=require("../middleware/authMiddleware.js");
+const validate = require("../middleware/validateMiddleware.js");
+const { sendRequestSchema } = require("../validations/requestValidation.js");
 const  {
     sendRequest,
     getMyRequests,
@@ -10,7 +12,7 @@ const  {
 const router = express.Router();
 
 
-router.post("/", protect, sendRequest);
+router.post("/", protect, validate(sendRequestSchema), sendRequest);
 
 
 router.get("/", protect, getMyRequests);
