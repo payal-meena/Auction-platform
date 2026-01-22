@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // useRef add kiya
 import {
     Search, School, BookOpen, Verified, Users, History,
     Edit, Trash2, Share2, Settings, HelpCircle, ShieldCheck, Plus, LogOut,
@@ -9,6 +9,21 @@ import {
 const AddExpertiseModal = ({ isOpen, onClose }) => {
     const [step, setStep] = useState(1);
     const [proficiency, setProficiency] = useState('Intermediate');
+    
+    // --- IMAGE UPLOAD LOGIC ---
+    const fileInputRef = useRef(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -74,11 +89,35 @@ const AddExpertiseModal = ({ isOpen, onClose }) => {
                                     </select>
                                 </div>
                             </div>
+                            
+                            {/* --- UPDATED THUMBNAIL SECTION --- */}
                             <div className="flex flex-col gap-3 text-left">
                                 <label className="text-white/80 text-xs font-bold uppercase tracking-widest ml-1">Thumbnail</label>
-                                <div className="flex-1 min-h-[180px] border-2 border-dashed border-[#13ec5b]/20 rounded-2xl bg-white/5 hover:bg-[#13ec5b]/5 flex flex-col items-center justify-center cursor-pointer transition-all group">
-                                    <Camera size={48} className="text-[#13ec5b]/40 group-hover:text-[#13ec5b] mb-3 transition-colors" />
-                                    <p className="text-sm font-medium">Upload Cover Image</p>
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    onChange={handleImageChange} 
+                                    accept="image/*" 
+                                    className="hidden" 
+                                />
+                                <div 
+                                    onClick={() => fileInputRef.current.click()}
+                                    className="flex-1 min-h-[180px] border-2 border-dashed border-[#13ec5b]/20 rounded-2xl bg-white/5 hover:bg-[#13ec5b]/5 flex flex-col items-center justify-center cursor-pointer transition-all group relative overflow-hidden"
+                                >
+                                    {selectedImage ? (
+                                        <>
+                                            <img src={selectedImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <p className="text-xs font-bold">CHANGE IMAGE</p>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Camera size={48} className="text-[#13ec5b]/40 group-hover:text-[#13ec5b] mb-3 transition-colors" />
+                                            <p className="text-sm font-medium">Upload Cover Image</p>
+                                            <p className="text-[10px] text-white/30 mt-1 uppercase">Click to browse PC</p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -141,7 +180,7 @@ const AddExpertiseModal = ({ isOpen, onClose }) => {
                                     CONTINUE <ChevronRight size={20} />
                                 </button>
                             ) : (
-                                <button className="bg-[#13ec5b] px-10 py-4 rounded-xl text-[#102216] font-black tracking-widest shadow-[0_0_20px_rgba(19,236,91,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                                <button className="bg-[#13ec5b] px-10 py-4 rounded-xl text-[#102210] font-black tracking-widest shadow-[0_0_20px_rgba(19,236,91,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
                                     PUBLISH <Rocket size={20} />
                                 </button>
                             )}
@@ -267,7 +306,6 @@ const Profile = () => {
                                 <SkillCard key={skill.id} skill={skill} />
                             ))}
 
-                            {/* Trigger Modal on Click */}
                             <button 
                                 onClick={() => setIsModalOpen(true)}
                                 className="group flex flex-col items-center justify-center gap-4 p-8 min-h-[260px] border-2 border-dashed border-slate-300 dark:border-white/10 hover:border-[#13ec5b]/50 hover:bg-[#13ec5b]/5 rounded-2xl transition-all"
@@ -285,13 +323,11 @@ const Profile = () => {
                 </div>
             </main>
 
-            {/* Modal Integrated */}
             <AddExpertiseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
     );
 };
 
-// ... SidebarLink, StatBox, TabButton, SkillCard helper components (keeping same logic) ...
 const StatBox = ({ label, value }) => (
     <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 shadow-sm">
         <span className="text-xl font-bold dark:text-white">{value}</span>
