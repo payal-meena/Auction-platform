@@ -33,4 +33,16 @@ export const skillService = {
     const response = await api.delete(`/skills/${skillId}`);
     return response.data;
   },
+
+  // Add wanted skill
+  addWantedSkill: async (skillData) => {
+    const response = await api.post('/skills/wanted', skillData);
+    return response.data;
+  },
+
+  // Get my wanted skills
+  getMyWantedSkills: async () => {
+    const response = await api.get('/skills/wanted/my');
+    return response.data;
+  },
 };

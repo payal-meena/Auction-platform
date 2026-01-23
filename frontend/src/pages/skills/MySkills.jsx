@@ -17,17 +17,59 @@ const MySkills = () => {
   const [isWantedModalOpen, setIsWantedModalOpen] = useState(false); 
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [targetProficiency, setTargetProficiency] = useState('beginner');
+  const [skillName, setSkillName] = useState('');
+  const [description, setDescription] = useState('');
   const [offeredSkills, setOfferedSkills] = useState([]);
+  const [wantedSkills, setWantedSkills] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const wantedSkills = [
-    { title: "Python Programming", level: "Beginner", icon: "data_object", detail: "3 active matches", status: "Searching for partners" },
-    { title: "Piano", level: "Beginner", icon: "piano", detail: "0 matches", status: "Pending verification" },
-  ];
+
 
   useEffect(() => {
     fetchMySkills();
+    fetchMyWantedSkills();
   }, []);
+
+  const fetchMyWantedSkills = async () => {
+    try {
+      const response = await skillService.getMyWantedSkills();
+      if (response.success) {
+        const formattedSkills = response.skills.map(skill => ({
+          id: skill._id,
+          title: skill.skillName,
+          level: skill.leval,
+          icon: "auto_stories",
+          detail: "Looking for mentor",
+          status: "Searching for partners",
+          description: skill.description
+        }));
+        setWantedSkills(formattedSkills);
+      }
+    } catch (error) {
+      console.error('Error fetching wanted skills:', error);
+    }
+  };
+
+  const handleAddWantedSkill = async () => {
+    if (!skillName.trim()) return;
+    
+    try {
+      const skillData = {
+        skillName: skillName.trim(),
+        level: targetProficiency.charAt(0).toUpperCase() + targetProficiency.slice(1),
+        description: description.trim()
+      };
+      
+      await skillService.addWantedSkill(skillData);
+      fetchMyWantedSkills();
+      setIsWantedModalOpen(false);
+      setSkillName('');
+      setDescription('');
+      setTargetProficiency('beginner');
+    } catch (error) {
+      console.error('Error adding wanted skill:', error);
+    }
+  };
 
   const fetchMySkills = async () => {
     try {
@@ -239,6 +281,8 @@ const MySkills = () => {
                     className="w-full bg-[#193322]/50 border border-[#23482f] focus:border-[#13ec5b] focus:ring-1 focus:ring-[#13ec5b] rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-slate-500 outline-none transition-all" 
                     placeholder="Find a skill you want to learn" 
                     type="text"
+                    value={skillName}
+                    onChange={(e) => setSkillName(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-wrap gap-2 pt-2">
@@ -277,6 +321,8 @@ const MySkills = () => {
                   className="w-full bg-[#193322]/50 border border-[#23482f] focus:border-[#13ec5b] focus:ring-1 focus:ring-[#13ec5b] rounded-xl py-3 px-4 text-white placeholder-slate-500 outline-none transition-all resize-none" 
                   placeholder="Explain what you're hoping to achieve..." 
                   rows="3"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
               </div>
             </div>
@@ -288,7 +334,10 @@ const MySkills = () => {
               >
                 Cancel
               </button>
-              <button className="flex-[2] px-6 py-4 rounded-xl bg-[#13ec5b] text-[#102216] font-bold hover:shadow-lg hover:shadow-[#13ec5b]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <button 
+                onClick={handleAddWantedSkill}
+                className="flex-[2] px-6 py-4 rounded-xl bg-[#13ec5b] text-[#102216] font-bold hover:shadow-lg hover:shadow-[#13ec5b]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
                 <CheckCircle2 size={20} />
                 Add to My List
               </button>
