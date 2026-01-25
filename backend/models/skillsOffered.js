@@ -22,6 +22,34 @@ const skillSchema = new mongoose.Schema(
       type: String,
       required: false
     },
+
+    description: {
+      type: String,
+    },
+
+    experience: {
+      type: Number, // years
+    },
+
+    category: {
+      type: String,
+    },
+
+    exchangeSkills: {
+      type: String,
+    },
+
+    icon: {
+      type: String,
+      default: "school", // material icon name
+    },
+
+    status: {
+      type: String,
+      enum: ["Active", "Paused", "Learning"],
+      default: "Active",
+    },
+
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

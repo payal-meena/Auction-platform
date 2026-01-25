@@ -1,147 +1,200 @@
-const Skill = require("../models/skillsOffered.js");
-const SkillsToLearn = require("../models/skillsToLearn.js");
-const User = require("../models/User.js");
 
+const Skill = require("../models/Skill");
+const User = require("../models/User");
+
+// =======================
+// ADD SKILL
+// =======================
 const addSkill = async (req, res) => {
   try {
-    const { skillName, level, type, experience, category, description } = req.body;
-    const userId = req.user;
+    const {
+      skillName,
+      level,
+      type,
+      experience,
+      description,
+      exchangeSkills
+    } = req.body;
 
-    // Validate required fields
-    if (!skillName || !level || !category) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required fields: skillName, level, and category are required" 
+    console.log("req.user:", req.user);
+    console.log("req.body:", req.body);
+
+    // Auth check
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Required fields
+    if (!skillName || !type) {
+      return res.status(400).json({
+        message: "skillName and type are required"
       });
     }
 
-    const skill = await Skill.create({
+    // Type validation
+    if (!["Offer", "Learn"].includes(type)) {
+      return res.status(400).json({
+        message: "Invalid skill type"
+      });
+    }
+
+    // Duplicate skill check
+    const existingSkill = await Skill.findOne({
       skillName,
-      level,
-      type: type || "",
-      experience: experience || "",
-      userId,
-      category,
-      thumbnail: req.file ? req.file.path : "https://via.placeholder.com/300",
-      description: description || ""
+      userId: req.user
     });
 
-    res.status(201).json({
+    if (existingSkill) {
+      return res.status(400).json({
+        message: "Skill already exists"
+      });
+    }
+
+    // Create skill
+    const skill = new Skill({
+      skillName,
+      level: level
+        ? level.charAt(0).toUpperCase() + level.slice(1).toLowerCase()
+        : "Beginner",
+      type,
+      experience: Number(experience) || 0,
+      description: description || "",
+      exchangeSkills: exchangeSkills || "",
+      userId: req.user
+    });
+
+
+    await skill.save();
+
+    return res.status(201).json({
       success: true,
       message: "Skill added successfully",
       skill
     });
+
   } catch (error) {
-    console.error('Error adding skill:', error);
-    res.status(500).json({ 
+    console.error("Add skill error:", error);
+    return res.status(500).json({
       success: false,
-      message: error.message || "Internal server error" 
+      message: "Internal server error"
     });
   }
 };
 
+// =======================
+// GET MY SKILLS
+// =======================
 const getMySkills = async (req, res) => {
   try {
-    const userId = req.user;
-    const skills = await Skill.find({ userId, isActive: true });
-    
-    res.json({
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const skills = await Skill.find({ userId: req.user });
+
+    const offered = skills.filter(skill => skill.type === "Offer");
+    const learn = skills.filter(skill => skill.type === "Learn");
+
+    return res.status(200).json({
       success: true,
-      skills
+      offered,
+      learn
     });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const getUserSkills = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const skills = await Skill.find({ userId, isActive: true }).populate('userId', 'name email profileImage');
-    
-    res.json({
-      success: true,
-      skills
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
+// =======================
+// DELETE SKILL 
+// =======================
 const deleteSkill = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user;
 
-    const skill = await Skill.findOne({ _id: id, userId });
-    if (!skill) {
-      return res.status(404).json({ message: "Skill not found" });
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    skill.isActive = false;
-    await skill.save();
-
-    res.json({
-      success: true,
-      message: "Skill deleted successfully"
+    const skill = await Skill.findOneAndDelete({
+      _id: id,
+      userId: req.user
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
-const addWantedSkill = async (req, res) => {
-  try {
-    const { skillName, level, description } = req.body;
-    const userId = req.user;
-
-    if (!skillName || !level) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required fields: skillName and level are required" 
+    if (!skill) {
+      return res.status(404).json({
+        message: "Skill not found"
       });
     }
 
-    const wantedSkill = await SkillsToLearn.create({
-      skillName,
-      leval: level,
-      description: description || "",
-      userId
+    return res.status(200).json({
+      success: true,
+      message: "Skill deleted successfully",
+      skill
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Wanted skill added successfully",
-      skill: wantedSkill
-    });
   } catch (error) {
-    console.error('Error adding wanted skill:', error);
-    res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: error.message || "Internal server error" 
+      message: error.message
     });
   }
 };
 
-const getMyWantedSkills = async (req, res) => {
+// =======================
+// UPDATE SKILL
+// =======================
+const updateSkill = async (req, res) => {
   try {
-    const userId = req.user;
-    const wantedSkills = await SkillsToLearn.find({ userId });
-    
-    res.json({
-      success: true,
-      skills: wantedSkills
+    const { id } = req.params;
+    const { skillName, level, experience, description, exchangeSkills } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const skill = await Skill.findOne({
+      _id: id,
+      userId: req.user
     });
+
+    if (!skill) {
+      return res.status(404).json({
+        message: "Skill not found"
+      });
+    }
+
+    // Update fields if provided
+    if (skillName) skill.skillName = skillName;
+    if (level) skill.level = level;
+    if (experience !== undefined) skill.experience = Number(experience);
+    if (description !== undefined) skill.description = description;
+    if (exchangeSkills !== undefined) skill.exchangeSkills = exchangeSkills;
+
+    await skill.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Skill updated successfully",
+      skill
+    });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
+// =======================
 module.exports = {
   addSkill,
   getMySkills,
-  getUserSkills,
   deleteSkill,
-  addWantedSkill,
-  getMyWantedSkills,
+  updateSkill
 };
