@@ -167,8 +167,6 @@ const AddSkillModal = ({ isOpen, onClose, onSkillAdded }) => {
                   type="number"
                 />
               </div>
-
-
             </div>
 
             <div className="space-y-2">
