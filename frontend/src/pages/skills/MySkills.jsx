@@ -37,7 +37,7 @@ const MySkills = () => {
         const formattedSkills = response.skills.map(skill => ({
           id: skill._id,
           title: skill.skillName,
-          level: skill.leval,
+          level: skill.leval || skill.level,
           icon: "auto_stories",
           detail: "Looking for mentor",
           status: "Searching for partners",
@@ -120,6 +120,15 @@ const MySkills = () => {
     }
   };
 
+  const handleDeleteWantedSkill = async (skillId) => {
+    try {
+      await skillService.deleteWantedSkill(skillId);
+      fetchMyWantedSkills();
+    } catch (error) {
+      console.error('Error deleting wanted skill:', error);
+    }
+  };
+
   const handleEditClick = (skill) => {
     setSelectedSkill(skill);
     setIsEditModalOpen(true);
@@ -130,15 +139,19 @@ const MySkills = () => {
     setIsCurriculumOpen(true);
   };
 
+  const handleOpenEditCurriculum = () => {
+    setIsCurriculumOpen(false); 
+    setIsEditCurriculumOpen(true); 
+  };
+
   return (
     <div className="flex h-screen overflow-hidden font-['Lexend'] relative">
       <main className={`flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark transition-all duration-300 ${isWantedModalOpen ? 'blur-sm opacity-50' : ''}`}>
         <UserNavbar userName="Alex" />
 
-        {/* Centered Content Container */}
         <div className="max-w-7xl mx-auto w-full px-6 py-10">
           
-          {/* --- Tabs Navigation (Centered) --- */}
+          {/* --- Centered Navigation Tabs --- */}
           <div className="flex items-center justify-center gap-12 mb-12 border-b border-slate-200 dark:border-[#23482f] w-full">
             <button 
               onClick={() => setActiveTab('offered')}
@@ -163,9 +176,9 @@ const MySkills = () => {
             </button>
           </div>
 
-          {/* --- Content Sections --- */}
           <div className="flex justify-center w-full">
             {activeTab === 'offered' ? (
+              /* --- OFFERED SKILLS SECTION --- */
               <section className="w-full animate-in fade-in slide-in-from-bottom-3 duration-500">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
                   <div className="text-center md:text-left">
@@ -207,6 +220,7 @@ const MySkills = () => {
                 </div>
               </section>
             ) : (
+              /* --- WANTED SKILLS SECTION (Styled exactly like Offered) --- */
               <section className="w-full animate-in fade-in slide-in-from-bottom-3 duration-500">
                 <div className="text-center md:text-left mb-10">
                   <h3 className="text-slate-900 dark:text-white text-3xl font-black uppercase tracking-tight">Skills I Want to Learn</h3>
@@ -216,13 +230,15 @@ const MySkills = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {wantedSkills.map((skill, index) => (
                     <MySkillCard 
-                      key={index} 
+                      key={skill.id || index} 
                       {...skill} 
                       isOffer={false} 
                       onEdit={() => handleEditClick(skill)}
+                      onDelete={() => handleDeleteWantedSkill(skill.id)}
                     />
                   ))}
                   
+                  {/* Neon Styled "Add New" Button */}
                   <button 
                     className="border-2 border-dashed border-slate-200 dark:border-[#23482f] rounded-[2.5rem] flex flex-col items-center justify-center p-14 text-slate-400 hover:border-[#13ec5b] hover:bg-[#13ec5b]/5 hover:text-[#13ec5b] transition-all group cursor-pointer shadow-2xl shadow-black/10"
                     onClick={() => setIsWantedModalOpen(true)}
@@ -237,12 +253,13 @@ const MySkills = () => {
         </div>
       </main>
 
-      {/* --- Modals (Logic Unchanged) --- */}
+      {/* --- Modals Section --- */}
       <EditSkillModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} skillData={selectedSkill} />
       <AddSkillModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSkillAdded={handleSkillAdded} />
-      <CurriculumModal isOpen={isCurriculumOpen} onClose={() => setIsCurriculumOpen(false)} skillTitle={activeSkillTitle} onEditRequest={() => { setIsCurriculumOpen(false); setIsEditCurriculumOpen(true); }} />
+      <CurriculumModal isOpen={isCurriculumOpen} onClose={() => setIsCurriculumOpen(false)} skillTitle={activeSkillTitle} onEditRequest={handleOpenEditCurriculum} />
       <EditCurriculumModal isOpen={isEditCurriculumOpen} onClose={() => setIsEditCurriculumOpen(false)} skillTitle={activeSkillTitle} />
 
+      {/* Modern Neon Styled Wanted Skill Modal */}
       {isWantedModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050a06]/80 backdrop-blur-md">
           <div className="bg-[#102216] w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5 animate-in zoom-in-95 duration-300">
