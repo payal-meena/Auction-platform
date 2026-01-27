@@ -9,6 +9,8 @@ import EditCurriculumModal from '../../components/modals/EditCurriculumModal';
 import { skillService } from '../../services/skillService';
 
 const MySkills = () => {
+  // --- States ---
+  const [activeTab, setActiveTab] = useState('offered'); 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCurriculumOpen, setIsCurriculumOpen] = useState(false);
@@ -22,8 +24,6 @@ const MySkills = () => {
   const [offeredSkills, setOfferedSkills] = useState([]);
   const [wantedSkills, setWantedSkills] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
 
   useEffect(() => {
     fetchMySkills();
@@ -52,14 +52,12 @@ const MySkills = () => {
 
   const handleAddWantedSkill = async () => {
     if (!skillName.trim()) return;
-    
     try {
       const skillData = {
         skillName: skillName.trim(),
         level: targetProficiency.charAt(0).toUpperCase() + targetProficiency.slice(1),
         description: description.trim()
       };
-      
       await skillService.addWantedSkill(skillData);
       fetchMyWantedSkills();
       setIsWantedModalOpen(false);
@@ -132,215 +130,162 @@ const MySkills = () => {
     setIsCurriculumOpen(true);
   };
 
-  const handleOpenEditCurriculum = () => {
-    setIsCurriculumOpen(false); 
-    setIsEditCurriculumOpen(true); 
-  };
-
   return (
     <div className="flex h-screen overflow-hidden font-['Lexend'] relative">
       <main className={`flex-1 flex flex-col overflow-y-auto bg-background-light dark:bg-background-dark transition-all duration-300 ${isWantedModalOpen ? 'blur-sm opacity-50' : ''}`}>
         <UserNavbar userName="Alex" />
 
-        <div className="p-8 max-w-[1200px] mx-auto w-full">
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                  <span className="material-symbols-outlined">school</span>
-                </div>
-                <div>
-                  <h3 className="text-slate-900 dark:text-white text-xl font-bold">Skills I Offer</h3>
-                  <p className="text-slate-500 dark:text-[#92c9a4] text-sm">Skills you are teaching to others</p>
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => setIsAddModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2 bg-primary text-background-dark font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/10 cursor-pointer"
-              >
-                <span className="material-symbols-outlined">add</span>
-                Add New Skill
-              </button>
-            </div>
+        {/* Centered Content Container */}
+        <div className="max-w-7xl mx-auto w-full px-6 py-10">
+          
+          {/* --- Tabs Navigation (Centered) --- */}
+          <div className="flex items-center justify-center gap-12 mb-12 border-b border-slate-200 dark:border-[#23482f] w-full">
+            <button 
+              onClick={() => setActiveTab('offered')}
+              className={`relative pb-5 flex items-center gap-3 font-black transition-all text-xs uppercase tracking-widest ${activeTab === 'offered' ? 'text-[#13ec5b]' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              <span className="material-symbols-outlined text-xl">school</span>
+              Skills I Offer
+              {activeTab === 'offered' && (
+                <div className="absolute bottom-0 left-0 w-full h-[4px] bg-[#13ec5b] rounded-t-full shadow-[0_-2px_15px_rgba(19,236,91,0.6)]" />
+              )}
+            </button>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading ? (
-                <div className="col-span-full text-center py-8">
-                  <div className="text-slate-500 dark:text-[#92c9a4]">Loading skills...</div>
-                </div>
-              ) : offeredSkills.length > 0 ? (
-                offeredSkills.map((skill) => (
-                  <MySkillCard 
-                    key={skill.id} 
-                    {...skill} 
-                    isOffer={true} 
-                    onEdit={() => handleEditClick(skill)}
-                    onViewCurriculum={() => handleViewCurriculum(skill.title)}
-                    onDelete={() => handleDeleteSkill(skill.id)}
-                  />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-8">
-                  <div className="text-slate-500 dark:text-[#92c9a4] mb-4">No skills added yet</div>
+            <button 
+              onClick={() => setActiveTab('wanted')}
+              className={`relative pb-5 flex items-center gap-3 font-black transition-all text-xs uppercase tracking-widest ${activeTab === 'wanted' ? 'text-[#13ec5b]' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              <span className="material-symbols-outlined text-xl">auto_stories</span>
+              Skills I Want to Learn
+              {activeTab === 'wanted' && (
+                <div className="absolute bottom-0 left-0 w-full h-[4px] bg-[#13ec5b] rounded-t-full shadow-[0_-2px_15px_rgba(19,236,91,0.6)]" />
+              )}
+            </button>
+          </div>
+
+          {/* --- Content Sections --- */}
+          <div className="flex justify-center w-full">
+            {activeTab === 'offered' ? (
+              <section className="w-full animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
+                  <div className="text-center md:text-left">
+                    <h3 className="text-slate-900 dark:text-white text-3xl font-black uppercase tracking-tight">Skills I Offer</h3>
+                    <p className="text-[#13ec5b] text-[10px] font-black tracking-[0.2em] mt-1">SHARE YOUR EXPERTISE WITH THE WORLD</p>
+                  </div>
                   <button 
                     onClick={() => setIsAddModalOpen(true)}
-                    className="text-primary hover:underline"
+                    className="flex items-center gap-3 px-8 py-4 bg-[#13ec5b] text-[#102216] font-black rounded-2xl hover:shadow-[0_0_25px_rgba(19,236,91,0.4)] hover:scale-105 transition-all cursor-pointer text-[10px] uppercase tracking-widest"
                   >
-                    Add your first skill
+                    <PlusCircle size={18} />
+                    Add New Skill
                   </button>
                 </div>
-              )}
-            </div>
-          </section>
 
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                  <span className="material-symbols-outlined">auto_stories</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {loading ? (
+                    <div className="col-span-full text-center py-20 flex flex-col items-center">
+                      <div className="size-12 border-4 border-[#13ec5b]/20 border-t-[#13ec5b] rounded-full animate-spin mb-4" />
+                      <div className="text-[#13ec5b] font-black text-xs tracking-widest uppercase">Syncing Skillset...</div>
+                    </div>
+                  ) : offeredSkills.length > 0 ? (
+                    offeredSkills.map((skill) => (
+                      <MySkillCard 
+                        key={skill.id} 
+                        {...skill} 
+                        isOffer={true} 
+                        onEdit={() => handleEditClick(skill)}
+                        onViewCurriculum={() => handleViewCurriculum(skill.title)}
+                        onDelete={() => handleDeleteSkill(skill.id)}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-24 border-2 border-dashed border-[#23482f] rounded-[3rem] bg-[#102216]/20">
+                      <div className="text-slate-500 dark:text-[#92c9a4]/40 mb-6 font-black uppercase text-xs tracking-[0.3em]">No skills being offered yet</div>
+                      <button onClick={() => setIsAddModalOpen(true)} className="text-[#13ec5b] hover:text-white transition-colors font-black text-xs uppercase underline tracking-widest">Launch Your First Course</button>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <h3 className="text-slate-900 dark:text-white text-xl font-bold">Skills I Want to Learn</h3>
-                  <p className="text-slate-500 dark:text-[#92c9a4] text-sm">Skills you're looking for partners</p>
+              </section>
+            ) : (
+              <section className="w-full animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <div className="text-center md:text-left mb-10">
+                  <h3 className="text-slate-900 dark:text-white text-3xl font-black uppercase tracking-tight">Skills I Want to Learn</h3>
+                  <p className="text-[#13ec5b] text-[10px] font-black tracking-[0.2em] mt-1">YOUR PERSONAL GROWTH ROADMAP</p>
                 </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {wantedSkills.map((skill, index) => (
-                <MySkillCard 
-                  key={index} 
-                  {...skill} 
-                  isOffer={false} 
-                  onEdit={() => handleEditClick(skill)}
-                />
-              ))}
-              
-              <button 
-                className="border-2 border-dashed border-slate-200 dark:border-[#23482f] rounded-2xl flex flex-col items-center justify-center p-8 text-slate-400 hover:border-primary hover:text-primary transition-all group cursor-pointer"
-                onClick={() => setIsWantedModalOpen(true)}
-              >
-                <span className="material-symbols-outlined text-4xl mb-2 group-hover:scale-110 transition-transform">add_circle</span>
-                <span className="font-bold">Add Wanted Skill</span>
-              </button>
-            </div>
-          </section>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {wantedSkills.map((skill, index) => (
+                    <MySkillCard 
+                      key={index} 
+                      {...skill} 
+                      isOffer={false} 
+                      onEdit={() => handleEditClick(skill)}
+                    />
+                  ))}
+                  
+                  <button 
+                    className="border-2 border-dashed border-slate-200 dark:border-[#23482f] rounded-[2.5rem] flex flex-col items-center justify-center p-14 text-slate-400 hover:border-[#13ec5b] hover:bg-[#13ec5b]/5 hover:text-[#13ec5b] transition-all group cursor-pointer shadow-2xl shadow-black/10"
+                    onClick={() => setIsWantedModalOpen(true)}
+                  >
+                    <PlusCircle className="mb-5 group-hover:scale-110 transition-transform text-[#13ec5b]/40 group-hover:text-[#13ec5b]" size={56} />
+                    <span className="font-black uppercase tracking-[0.2em] text-[10px]">Identify New Target</span>
+                  </button>
+                </div>
+              </section>
+            )}
+          </div>
         </div>
       </main>
 
-      <EditSkillModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-        skillData={selectedSkill}
-      />
+      {/* --- Modals (Logic Unchanged) --- */}
+      <EditSkillModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} skillData={selectedSkill} />
+      <AddSkillModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSkillAdded={handleSkillAdded} />
+      <CurriculumModal isOpen={isCurriculumOpen} onClose={() => setIsCurriculumOpen(false)} skillTitle={activeSkillTitle} onEditRequest={() => { setIsCurriculumOpen(false); setIsEditCurriculumOpen(true); }} />
+      <EditCurriculumModal isOpen={isEditCurriculumOpen} onClose={() => setIsEditCurriculumOpen(false)} skillTitle={activeSkillTitle} />
 
-      <AddSkillModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)}
-        onSkillAdded={handleSkillAdded}
-      />
-
-      <CurriculumModal 
-        isOpen={isCurriculumOpen} 
-        onClose={() => setIsCurriculumOpen(false)} 
-        skillTitle={activeSkillTitle}
-        onEditRequest={() => {
-          setIsCurriculumOpen(false); 
-          setIsEditCurriculumOpen(true); 
-        }} 
-      />
-
-      <EditCurriculumModal
-        isOpen={isEditCurriculumOpen} 
-        onClose={() => setIsEditCurriculumOpen(false)} 
-        skillTitle={activeSkillTitle}
-      />
       {isWantedModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102216]/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-[#102216]/85 backdrop-blur-xl w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-[#13ec5b]/20">
-            
-            <div className="flex justify-between items-center px-8 py-6 border-b border-[#23482f]">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-[#13ec5b]/10 flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050a06]/80 backdrop-blur-md">
+          <div className="bg-[#102216] w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5 animate-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center px-10 py-8 border-b border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-2xl bg-[#13ec5b]/10 flex items-center justify-center shadow-inner">
                   <PlusCircle className="text-[#13ec5b]" size={24} />
                 </div>
-                <h2 className="text-xl font-bold text-white tracking-tight">Add Wanted Skill</h2>
+                <h2 className="text-xl font-black text-white tracking-tight uppercase">New Learning Goal</h2>
               </div>
-              <button onClick={() => setIsWantedModalOpen(false)} className="text-slate-400 hover:text-white transition-colors">
-                <X size={24} />
-              </button>
+              <button onClick={() => setIsWantedModalOpen(false)} className="text-white/20 hover:text-white transition-colors"><X size={28} /></button>
             </div>
 
-            <div className="p-8 space-y-6">
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-[#92c9a4]">What do you want to learn?</label>
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                  <input 
-                    className="w-full bg-[#193322]/50 border border-[#23482f] focus:border-[#13ec5b] focus:ring-1 focus:ring-[#13ec5b] rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-slate-500 outline-none transition-all" 
-                    placeholder="Find a skill you want to learn" 
-                    type="text"
-                    value={skillName}
-                    onChange={(e) => setSkillName(e.target.value)}
-                  />
-                </div>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="text-xs text-slate-500 font-medium py-1">Suggested:</span>
-                  {['Python', 'Photography', 'Data Science', 'Guitar'].map(skill => (
-                    <button key={skill} className="px-3 py-1 rounded-full bg-[#23482f] text-[#92c9a4] text-xs font-medium hover:bg-[#13ec5b]/20 hover:text-[#13ec5b] transition-all">
-                      {skill}
-                    </button>
-                  ))}
+            <div className="p-10 space-y-8">
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black text-[#92c9a4] uppercase tracking-widest ml-1">Skill Identification</label>
+                <div className="relative group">
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#13ec5b] transition-colors" size={20} />
+                  <input className="w-full bg-white/5 border border-white/10 focus:border-[#13ec5b] rounded-[1.2rem] py-4 pl-14 pr-6 text-white outline-none transition-all placeholder:text-white/10" placeholder="e.g. Creative Direction" type="text" value={skillName} onChange={(e) => setSkillName(e.target.value)} />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-[#92c9a4]">Target Proficiency</label>
-                <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black text-[#92c9a4] uppercase tracking-widest ml-1">Proficiency Level</label>
+                <div className="grid grid-cols-3 gap-4">
                   {['beginner', 'intermediate', 'advanced'].map((level) => (
-                    <label key={level} className="cursor-pointer group">
-                      <input 
-                        className="peer hidden" 
-                        name="proficiency" 
-                        type="radio" 
-                        checked={targetProficiency === level}
-                        onChange={() => setTargetProficiency(level)}
-                      />
-                      <div className="text-center py-3 rounded-xl border border-[#23482f] bg-[#193322]/30 text-slate-400 peer-checked:bg-[#13ec5b]/10 peer-checked:border-[#13ec5b] peer-checked:text-[#13ec5b] transition-all font-medium text-sm capitalize">
-                        {level}
-                      </div>
+                    <label key={level} className="cursor-pointer">
+                      <input className="peer hidden" name="proficiency" type="radio" checked={targetProficiency === level} onChange={() => setTargetProficiency(level)} />
+                      <div className="text-center py-4 rounded-[1.2rem] border border-white/5 bg-white/5 text-white/30 peer-checked:bg-[#13ec5b]/10 peer-checked:border-[#13ec5b] peer-checked:text-[#13ec5b] transition-all font-black text-[9px] uppercase tracking-tighter">{level}</div>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-[#92c9a4]">Add a note to potential mentors</label>
-                <textarea 
-                  className="w-full bg-[#193322]/50 border border-[#23482f] focus:border-[#13ec5b] focus:ring-1 focus:ring-[#13ec5b] rounded-xl py-3 px-4 text-white placeholder-slate-500 outline-none transition-all resize-none" 
-                  placeholder="Explain what you're hoping to achieve..." 
-                  rows="3"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black text-[#92c9a4] uppercase tracking-widest ml-1">Learning Motivation</label>
+                <textarea className="w-full bg-white/5 border border-white/10 focus:border-[#13ec5b] rounded-[1.2rem] py-4 px-6 text-white outline-none resize-none transition-all placeholder:text-white/10" placeholder="Briefly describe your objectives..." rows="3" value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
               </div>
             </div>
 
-            <div className="p-8 pt-0 flex gap-4">
-              <button 
-                onClick={() => setIsWantedModalOpen(false)}
-                className="flex-1 px-6 py-4 rounded-xl border border-[#23482f] text-slate-400 font-bold hover:bg-white/5 transition-all"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleAddWantedSkill}
-                className="flex-[2] px-6 py-4 rounded-xl bg-[#13ec5b] text-[#102216] font-bold hover:shadow-lg hover:shadow-[#13ec5b]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-              >
-                <CheckCircle2 size={20} />
-                Add to My List
-              </button>
+            <div className="p-10 pt-0 flex gap-5">
+              <button onClick={() => setIsWantedModalOpen(false)} className="flex-1 px-6 py-5 rounded-[1.2rem] border border-white/10 text-white/40 font-black text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all">Cancel</button>
+              <button onClick={handleAddWantedSkill} className="flex-[2] px-6 py-5 rounded-[1.2rem] bg-[#13ec5b] text-[#102216] font-black text-[10px] uppercase tracking-widest hover:shadow-[0_0_30px_rgba(19,236,91,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3"><CheckCircle2 size={18} /> Confirm Goal</button>
             </div>
           </div>
         </div>

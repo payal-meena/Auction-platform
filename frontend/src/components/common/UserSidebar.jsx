@@ -1,5 +1,6 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import LogOut from '../modals/LogOut'; // Path confirm kar lein ki sahi hai
 
 const NavItem = ({ icon, label, to, badge = false }) => {
   const location = useLocation();
@@ -25,36 +26,61 @@ const NavItem = ({ icon, label, to, badge = false }) => {
 };
 
 const UserSidebar = () => {
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogoutConfirm = () => {
+    // Logout Logic: Token clear karein aur user ko login page par bhej dein
+    console.log("User logged out");
+    localStorage.removeItem('token'); // Agar token use kar rahe hain
+    setIsLogoutModalOpen(false);
+    navigate('/login');
+  };
+
   return (
-    <aside className="w-64 hidden lg:flex flex-col bg-white dark:bg-[#112217] border-r border-slate-200 dark:border-[#23482f] p-6 justify-between h-screen sticky top-0">
-      <div className="flex flex-col gap-8">
-        <Link to="/" className="flex gap-3 items-center px-2 cursor-pointer">
-          <div className="bg-[#13ec5b] rounded-lg p-2 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[#102216] font-bold">swap_horiz</span>
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-slate-900 dark:text-white text-lg font-bold leading-tight">SwapSkill</h1>
-            <p className="text-slate-500 dark:text-[#92c9a4] text-xs font-normal">Peer-to-Peer Learning</p>
-          </div>
-        </Link>
+    <>
+      <aside className="w-64 hidden lg:flex flex-col bg-white dark:bg-[#112217] border-r border-slate-200 dark:border-[#23482f] p-6 justify-between h-screen sticky top-0 font-['Lexend']">
+        <div className="flex flex-col gap-8">
+          <Link to="/" className="flex gap-3 items-center px-2 cursor-pointer">
+            <div className="bg-[#13ec5b] rounded-lg p-2 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[#102216] font-bold">swap_horiz</span>
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-slate-900 dark:text-white text-lg font-bold leading-tight">SwapSkill</h1>
+              <p className="text-slate-500 dark:text-[#92c9a4] text-xs font-normal">Peer-to-Peer Learning</p>
+            </div>
+          </Link>
 
-        <nav className="flex flex-col gap-2">
-          <NavItem to="/dashboard" icon="dashboard" label="Dashboard" />
-          <NavItem to="/explore" icon="Explore" label="Explore" />
-          <NavItem to="/my-skills" icon="psychology" label="My Skills" />
-          <NavItem to="/requests" icon="handshake" label="Requests" badge />
-          <NavItem to="/messages" icon="chat_bubble" label="Messages" />
-        </nav>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <NavItem to="/settings" icon="settings" label="Settings" />
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer">
-          <span className="material-symbols-outlined">logout</span>
-          <p className="text-sm font-medium">Logout</p>
+          <nav className="flex flex-col gap-2">
+            <NavItem to="/dashboard" icon="dashboard" label="Dashboard" />
+            <NavItem to="/explore" icon="Explore" label="Explore" />
+            <NavItem to="/my-skills" icon="psychology" label="My Skills" />
+            <NavItem to="/requests" icon="handshake" label="Requests" badge />
+            <NavItem to="/messages" icon="chat_bubble" label="Messages" />
+          </nav>
         </div>
-      </div>
-    </aside>
+
+        <div className="flex flex-col gap-2">
+          <NavItem to="/settings" icon="settings" label="Settings" />
+          
+          {/* Logout Action */}
+          <div 
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer group"
+          >
+            <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">logout</span>
+            <p className="text-sm font-medium">Logout</p>
+          </div>
+        </div>
+      </aside>
+
+      {/* LogOut Modal Component */}
+      <LogOut 
+        isOpen={isLogoutModalOpen} 
+        onClose={() => setIsLogoutModalOpen(false)} 
+        onConfirm={handleLogoutConfirm} 
+      />
+    </>
   );
 };
 
