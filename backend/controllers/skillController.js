@@ -164,6 +164,78 @@ const deleteWantedSkill = async (req, res) => {
 
 }
 }
+const editOfferedSkill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user;
+
+    const {
+      skillName,
+      level,
+      category,
+      experience,
+      description,
+      type
+    } = req.body;
+
+    const skill = await Skill.findOne({ _id: id, userId, isActive: true });
+
+    if (!skill) {
+      return res.status(404).json({ success: false, message: "Skill not found" });
+    }
+
+    skill.skillName = skillName ?? skill.skillName;
+    skill.level = level ?? skill.level;
+    skill.category = category ?? skill.category;
+    skill.experience = experience ?? skill.experience;
+    skill.description = description ?? skill.description;
+    skill.type = type ?? skill.type;
+
+    if (req.file) {
+      skill.thumbnail = req.file.path;
+    }
+
+    await skill.save();
+
+    res.json({
+      success: true,
+      message: "Skill updated successfully",
+      skill
+    });
+
+  } catch (error) {
+    console.error("Error updating skill:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+const editWantedSkill = async(req, res)=>{
+  try{
+    const {id}= req.params;
+    const userId =req.user;
+    const {skillName, level, description}= req.body;
+    const wantedSkill = await SkillsToLearn.findOne({_id:id, userId,isActive:true});
+    if(!wantedSkill){
+      return res.status(404).json({success:false, message:"Wanted skill not found"});
+    }
+    wantedSkill.skillName = skillName ?? wantedSkill.skillName;
+    wantedSkill.leval = level ?? wantedSkill.leval;
+    wantedSkill.description =  description ?? wantedSkill.description;
+    await wantedSkill.save();
+    res.json({
+      success:true,
+      message:"Wanted skill updated successfully",
+      wantedSkill 
+    })
+
+
+
+  }
+  catch(error){
+    console.error("Error updating wanted skill:", error);
+    res.status(500).json({ success: false, message: error.message });
+
+  }
+}
 
 module.exports = {
   addSkill,
@@ -172,5 +244,7 @@ module.exports = {
   deleteSkill,
   addWantedSkill,
   getMyWantedSkills,
-  deleteWantedSkill
+  deleteWantedSkill,
+  editOfferedSkill,
+  editWantedSkill
 };

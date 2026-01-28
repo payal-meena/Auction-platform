@@ -10,7 +10,9 @@ const {
   deleteSkill,
   addWantedSkill,
   getMyWantedSkills,
-  deleteWantedSkill
+  deleteWantedSkill,
+  editOfferedSkill,
+  editWantedSkill
 } = require("../controllers/skillController");
 
 router.post("/", protect, upload.single("thumbnail"), addSkill);
@@ -20,5 +22,7 @@ router.delete("/:id", protect, deleteSkill);
 router.post("/wanted", protect, addWantedSkill);
 router.get("/wanted/my", protect, getMyWantedSkills);
 router.delete("/wanted/:id", protect, deleteWantedSkill);
+router.put("/:id", protect, upload.single("thumbnail"), editOfferedSkill);
+router.put("/wanted/:id", protect, editWantedSkill);
 
 module.exports = router;

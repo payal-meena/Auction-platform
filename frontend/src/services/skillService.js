@@ -1,3 +1,4 @@
+// import { editOfferedSkill } from '../../../backend/controllers/skillController';
 import api from './api';
 
 export const skillService = {
@@ -50,4 +51,43 @@ export const skillService = {
     const response = await api.delete(`/skills/wanted/${skillId}`);
     return response.data;
   },
+  // Edit offered skill
+  // editOfferedSkill: async (skillId, skillData) => {
+  //   const formData = new FormData();  
+  //   Object.keys(skillData).forEach(key => {
+  //     formData.append(key, skillData[key]);
+  //   }
+  //   );
+
+  //   const response = await api.put(`/skills/${skillId}`, formData, {
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data',      
+  //     },
+  //   });
+  //   return response.data;
+  // }
+  // Update skill
+editOfferedSkill: async (skillId, skillData) => {
+  const formData = new FormData();
+  Object.keys(skillData).forEach(key => {
+    formData.append(key, skillData[key]);
+  });
+
+  const response = await api.put(`/skills/${skillId}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+
+  return response.data;
+},
+  // Edit wanted skill
+  editWantedSkill: async(skillId, skillData)=>{
+   
+    const response = await api.put(`/skills/wanted/${skillId}`,skillData);
+    return response.data;
+
+  }
+
+
+
+
 };
