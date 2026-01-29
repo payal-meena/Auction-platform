@@ -1,5 +1,5 @@
-
 const mongoose = require("mongoose");
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
 
-
     /* Profile Info */
     bio: {
       type: String,
@@ -51,10 +50,12 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-     fields:{
-     type:[String],
-     default:[],
-     },
+
+    profession: {
+      type: String,
+      default: "",
+    },
+
     /* Account Status */
     isBlocked: {
       type: Boolean,

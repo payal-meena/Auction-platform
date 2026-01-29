@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserCog, Trash2, Mail, Lock, ShieldCheck, Camera, Github, Globe, Briefcase, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { UserCog, Trash2, Mail, Lock, ShieldCheck, Camera, Github, Globe, Briefcase, FileText, ChevronDown, ChevronUp, Instagram, Facebook, Ghost, Twitter, Link as LinkIcon, ExternalLink, Edit3, Check, X } from 'lucide-react';
 import { getMyProfile } from "../../services/authService.js";
 import api from "../../services/api";
 import AccountModal from "./AccountModal"; 
@@ -16,6 +16,19 @@ const Account = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
+  // Social Media Links State
+  const [socialLinks, setSocialLinks] = useState({
+    instagram: '',
+    facebook: '',
+    snapchat: '',
+    github: '',
+    twitter: ''
+  });
+
+  // Local state to track which link is being edited
+  const [editingField, setEditingField] = useState(null);
+  const [tempValue, setTempValue] = useState("");
+
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
     type: 'success',
@@ -44,6 +57,7 @@ const Account = () => {
         setBio(data.bio || "");
         setProfession(data.profession || "");
         setPreviewImage(data.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name || 'User'}`);
+        setSocialLinks(data.socialLinks || { instagram: '', facebook: '', snapchat: '', github: '', twitter: '' });
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -55,8 +69,8 @@ const Account = () => {
   const handleUpdateProfile = async () => {
     setIsUpdating(true);
     try {
-      await api.put('/users/me', { email, bio, profession });
-      showModal('success', 'Profile Updated', 'Your changes have been saved successfully.');
+      await api.put('/users/me', { email, bio, profession, socialLinks });
+      showModal('success', 'Profile Updated', 'Your changes and social links have been saved.');
       setActiveTab(null); 
     } catch (error) {
       showModal('error', 'Update Failed', error.response?.data?.message || "Failed to update profile.");
@@ -105,6 +119,28 @@ const Account = () => {
     showModal('delete', 'Delete Account?', 'This will permanently remove all your data. Proceed?', deleteAccountFinal);
   };
 
+  // Function to open link in Chrome/Browser
+  const handleConnect = (url) => {
+    if (!url) {
+        showModal('error', 'No Link Found', 'Please edit and add a link first.');
+        return;
+    }
+    const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+    window.open(formattedUrl, '_blank');
+  };
+
+  // Start editing a specific social link
+  const startEdit = (field, currentVal) => {
+    setEditingField(field);
+    setTempValue(currentVal);
+  };
+
+  // Save specific social link to state
+  const saveTempLink = (field) => {
+    setSocialLinks({ ...socialLinks, [field]: tempValue });
+    setEditingField(null);
+  };
+
   if (loading) return (
     <div className="w-full flex justify-center items-center h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#13ec5b]"></div>
@@ -149,16 +185,25 @@ const Account = () => {
           <button onClick={() => toggleTab('general')} className="w-full flex items-center justify-between p-7 hover:bg-slate-50 dark:hover:bg-[#1a3323]">
             <div className="flex items-center gap-5">
               <div className="p-3 bg-slate-100 dark:bg-[#23482f] rounded-2xl"><UserCog className="text-[#13ec5b]" size={24} /></div>
-              <div className="text-left"><span className="block font-bold text-lg dark:text-white">General Settings</span><span className="text-xs text-slate-500">Email, Title, and Bio</span></div>
+              <div className="text-left"><span className="block font-bold text-lg dark:text-white">General Settings</span><span className="text-xs text-slate-500">Email, Profession, and Bio</span></div>
             </div>
             {activeTab === 'general' ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
           </button>
           <div className={`transition-all duration-300 ${activeTab === 'general' ? 'max-h-[1000px] p-8 pt-2' : 'max-h-0 overflow-hidden opacity-0'}`}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-[#23482f] text-white outline-none" placeholder="Email" />
-              <input type="text" value={profession} onChange={(e) => setProfession(e.target.value)} className="px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-[#23482f] text-white outline-none" placeholder="Title" />
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-[#23482f] text-white outline-none" placeholder="Email" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Professional Title</label>
+                <input type="text" value={profession} onChange={(e) => setProfession(e.target.value)} className="w-full px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-[#23482f] text-white outline-none" placeholder="e.g. Full Stack Developer" />
+              </div>
             </div>
-            <textarea rows="4" value={bio} onChange={(e) => setBio(e.target.value)} className="w-full px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-[#23482f] text-white outline-none mb-6" placeholder="Short Bio" />
+            <div className="space-y-2 mb-6">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">About Bio</label>
+              <textarea rows="4" value={bio} onChange={(e) => setBio(e.target.value)} className="w-full px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-[#23482f] text-white outline-none" placeholder="Short Bio" />
+            </div>
             <div className="flex justify-between items-center p-5 bg-slate-50 dark:bg-[#23482f]/20 rounded-2xl">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-bold dark:text-white">Profile Visibility</span>
@@ -191,34 +236,85 @@ const Account = () => {
           </div>
         </div>
 
-        {/* Linked Accounts */}
+        {/* Linked Accounts - Full Updated Design */}
         <div className="bg-white dark:bg-[#112217] rounded-3xl border border-slate-200 dark:border-[#23482f] overflow-hidden shadow-sm">
           <button onClick={() => toggleTab('connections')} className="w-full flex items-center justify-between p-7 hover:bg-slate-50 dark:hover:bg-[#1a3323] transition-colors">
             <div className="flex items-center gap-5">
               <div className="p-3 bg-slate-100 dark:bg-[#23482f] rounded-2xl"><ShieldCheck className="text-[#13ec5b]" size={24} /></div>
               <div className="text-left">
-                  <span className="block font-bold text-lg dark:text-white text-slate-900">Linked Accounts</span>
-                  <span className="text-xs text-slate-500 dark:text-[#92c9a4]">Social connections</span>
+                  <span className="block font-bold text-lg dark:text-white text-slate-900">Social Presence</span>
+                  <span className="text-xs text-slate-500 dark:text-[#92c9a4]">Connect and edit your links</span>
               </div>
             </div>
             {activeTab === 'connections' ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
           </button>
-          <div className={`transition-all duration-300 ease-in-out ${activeTab === 'connections' ? 'max-h-[500px] opacity-100 p-8 pt-2' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center justify-between p-5 rounded-2xl bg-slate-50 dark:bg-[#23482f]/30 border border-slate-100 dark:border-[#23482f]">
-                <div className="flex items-center gap-4"><Github size={24} className="dark:text-white" /><div><span className="block text-sm font-bold dark:text-white">GitHub</span><span className="text-xs text-slate-400">Not Connected</span></div></div>
-                <button className="text-xs font-bold text-[#13ec5b] hover:underline">Connect</button>
-              </div>
-              <div className="flex items-center justify-between p-5 rounded-2xl bg-slate-50 dark:bg-[#23482f]/30 border border-slate-100 dark:border-[#23482f]">
-                <div className="flex items-center gap-4"><Globe size={24} className="text-blue-500" /><div><span className="block text-sm font-bold dark:text-white">Google</span><span className="text-xs text-[#13ec5b]">Connected</span></div></div>
-                <button className="text-xs font-bold text-red-500 hover:underline">Disconnect</button>
-              </div>
+          <div className={`transition-all duration-300 ease-in-out ${activeTab === 'connections' ? 'max-h-[1200px] opacity-100 p-8 pt-2' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {[
+                { id: 'instagram', icon: <Instagram className="text-pink-500" />, label: 'Instagram' },
+                { id: 'facebook', icon: <Facebook className="text-blue-600" />, label: 'Facebook' },
+                { id: 'snapchat', icon: <Ghost className="text-yellow-500" />, label: 'Snapchat' },
+                { id: 'github', icon: <Github className="dark:text-white" />, label: 'GitHub' },
+                { id: 'twitter', icon: <Twitter className="text-sky-500" />, label: 'Twitter / X' }
+              ].map((social) => (
+                <div key={social.id} className="p-4 rounded-2xl border border-slate-100 dark:border-[#23482f] bg-slate-50/50 dark:bg-[#1a3323]/20 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {social.icon}
+                      <span className="text-sm font-bold dark:text-white">{social.label}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => handleConnect(socialLinks[social.id])}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-[#13ec5b]/10 text-[#13ec5b] rounded-lg text-xs font-bold hover:bg-[#13ec5b] hover:text-[#102216] transition-all"
+                      >
+                        <ExternalLink size={14} /> Connect
+                      </button>
+                      <button 
+                        onClick={() => startEdit(social.id, socialLinks[social.id])}
+                        className="p-1.5 text-slate-400 hover:text-[#13ec5b] transition-colors"
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Inline Editor for Social Link */}
+                  {editingField === social.id && (
+                    <div className="flex items-center gap-2 mt-1 animate-in slide-in-from-top-1 duration-200">
+                      <input 
+                        type="text" 
+                        value={tempValue} 
+                        onChange={(e) => setTempValue(e.target.value)}
+                        placeholder="Paste URL here..."
+                        className="flex-1 px-3 py-2 bg-white dark:bg-[#23482f] dark:text-white rounded-lg text-xs outline-none border border-[#13ec5b]/30 focus:border-[#13ec5b]"
+                      />
+                      <button onClick={() => saveTempLink(social.id)} className="p-2 bg-[#13ec5b] text-[#102216] rounded-lg"><Check size={14} /></button>
+                      <button onClick={() => setEditingField(null)} className="p-2 bg-red-500/10 text-red-500 rounded-lg"><X size={14} /></button>
+                    </div>
+                  )}
+                  {!editingField && socialLinks[social.id] && (
+                    <p className="text-[10px] text-slate-400 truncate px-1 italic">{socialLinks[social.id]}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-[#23482f]">
+                <button 
+                  onClick={handleUpdateProfile} 
+                  disabled={isUpdating}
+                  className="px-8 py-3 bg-[#13ec5b] text-[#102216] font-bold rounded-xl active:scale-95 shadow-lg shadow-[#13ec5b]/20"
+                >
+                  {isUpdating ? 'Saving...' : 'Save All Changes'}
+                </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Final Modal Call */}
+      {/* Modal Integration */}
       <AccountModal 
         {...modalConfig} 
         onClose={closeModal} 
