@@ -28,10 +28,13 @@ const Account = () => {
         setEmail(data.email);
         if (data.profileImage) {
           setPreviewImage(data.profileImage);
+        } else {
+          // Default avatar if no profile image
+          setPreviewImage(`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name || 'User'}`);
         }
         setLoading(false);
       } catch (error) {
-        console.error(error);
+        console.error('Profile fetch error:', error);
         setLoading(false);
       }
     };
@@ -76,13 +79,26 @@ const Account = () => {
       const formData = new FormData();
       formData.append("image", profileImage);
 
-      const response = await api.put("/users/profile-image", formData);
+      console.log('Uploading image...', profileImage.name);
+      const response = await api.put("/users/profile-image", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
+      console.log('Upload response:', response.data);
+      
       if (response.data?.user?.profileImage) {
         setPreviewImage(response.data.user.profileImage);
+        alert("Profile image updated successfully");
+      } else if (response.data?.imageUrl) {
+        setPreviewImage(response.data.imageUrl);
+        alert("Profile image updated successfully");
       }
-      alert("Profile image updated successfully");
+      
       setProfileImage(null);
+      // Reset file input
+      document.getElementById("profileImageInput").value = "";
     } catch (error) {
       console.error("Upload error:", error);
       alert("Image upload failed: " + (error.response?.data?.message || error.message));

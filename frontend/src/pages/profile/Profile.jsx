@@ -220,11 +220,7 @@ const Profile = () => {
         fetchProfile();
     }, []);
 
-
-
-
-
-
+    
     const skills = [
         {
             id: 1,

@@ -4,12 +4,9 @@ const userRoutes = require("./routes/userRoutes");
 const requestRoutes = require("./routes/requestRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const skillRoutes = require("./routes/skillRoutes");
+const cors = require("cors");
 
 const app = express();
-
-
-app.use(express.json());
-const cors = require("cors");
 
 app.use(cors({
   origin: "http://localhost:5173",
@@ -18,7 +15,8 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 
 app.get("/", (req, res) => {
