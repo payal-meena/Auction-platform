@@ -234,7 +234,7 @@ const Profile = () => {
                     info: `${skill.experience} years experience`,
                     description: skill.description,
                     type: skill.type,
-                    img: skill.img || "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=600"
+                    img: skill.thumbnail || "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=600"
                 }));
                 setSkills(formattedSkills);
             }
